@@ -306,6 +306,10 @@ L.esri.Mixins.identifiableLayer = {
       })
     };
 
+    if(this._layerParams && this._layerParams.time){
+      defaults.time = this._layerParams.time.join();
+    }
+
     if(this.options.layers) {
       defaults.layers = this.options.layers;
     }

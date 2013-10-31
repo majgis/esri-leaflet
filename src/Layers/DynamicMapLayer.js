@@ -42,9 +42,14 @@ L.esri.DynamicMapLayer = L.ImageOverlay.extend({
     this.serviceUrl = L.esri.Util.cleanUrl(url);
     this._layerParams = L.Util.extend({}, this.defaultParams);
 
-    for (var opt in options) {
-      if (!this.options.hasOwnProperty(opt)) {
-        this._layerParams[opt] = options[opt];
+    for (var optionsProperty in options) {
+      if (!this.options.hasOwnProperty(optionsProperty)) {
+        var option = options[optionsProperty];
+        if(option === 'time'){
+          this.setTime(option);
+        } else {
+          this._layerParams[optionsProperty] = option;
+        }
       }
     }
 
@@ -97,6 +102,44 @@ L.esri.DynamicMapLayer = L.ImageOverlay.extend({
 
     if (map.options.zoomAnimation) {
       map.off('zoomanim', this._animateZoom, this);
+    }
+  },
+
+  /**
+   * Set the time extent
+   *
+   * Supported types:
+   *
+   *   * integer(milliseconds)
+   *   * string(Date.parse() )
+   *   * Date instance
+   *
+   * @param  time Array with exactly two values of a supported type
+   */
+  setTime: function(time){
+    var result = [];
+    for (var timeIndex = 0; timeIndex < time.length; timeIndex++){
+      var timeValue = time[timeIndex];
+      if (typeof timeValue !== 'number'){
+        timeValue = new Date(timeValue).getTime();
+      }
+      result.push(timeValue)
+    }
+    this._layerParams.time = result;
+    if (this._map){
+      this._update();
+    }
+
+  },
+
+  /**
+   * The time format is milliseconds since 1 January 1970 00:00:00 UTC
+   * @returns {Array} Array of two integers representing start and end time.
+   */
+  getTime: function(){
+    var time = this._layerParams.time;
+    if (time){
+      return time.slice();
     }
   },
 
